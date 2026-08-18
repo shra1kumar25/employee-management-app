@@ -65,12 +65,20 @@ jobs:
       - name: Build Docker Image
         run: docker build -t employee-management-app-backend:ci ./backend
 
-      - name: Run Trivy Security Scan
-        uses: aquasecurity/trivy-action@0.33.1
-        with:
-          image-ref: employee-management-app-backend:ci
-          format: table
-          exit-code: 1
-          ignore-unfixed: true
-          vuln-type: os,library
-          severity: HIGH,CRITICAL
+     - name: Run Trivy Security Scan
+  uses: aquasecurity/trivy-action@master
+  with:
+    image-ref: employee-management-app-backend:ci
+    format: table
+    exit-code: 1
+    ignore-unfixed: true
+    vuln-type: os,library
+    severity: HIGH,CRITICAL- name: Run Trivy Security Scan
+  uses: aquasecurity/trivy-action@master
+  with:
+    image-ref: employee-management-app-backend:ci
+    format: table
+    exit-code: 1
+    ignore-unfixed: true
+    vuln-type: os,library
+    severity: HIGH,CRITICAL

@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      - feature/docker-compose
+
   pull_request:
     branches:
       - main
@@ -11,6 +13,21 @@ on:
 jobs:
   backend-test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: employee_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d employee_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout Repository
@@ -25,8 +42,22 @@ jobs:
         working-directory: backend
         run: npm ci
 
+      - name: Initialize Database
+        env:
+          PGPASSWORD: postgres
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          psql -h localhost -U postgres -d employee_db -f backend/db/init.sql
+
       - name: Run Tests
         working-directory: backend
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: employee_db
         run: npm test
 
       - name: Build Docker Image
@@ -36,4 +67,8 @@ jobs:
         uses: aquasecurity/setup-trivy@v0.2.3
 
       - name: Run Trivy Security Scan
-        run: trivy image --severity HIGH,CRITICAL --exit-code 1 employee-management-app-backend:ci
+        run: |
+          trivy image \
+          --severity HIGH,CRITICAL \
+          --exit-code 1 \
+          employee-management-app-backend:ci

@@ -32,3 +32,9 @@ jobs:
 
       - name: Build Docker Image
         run: docker build -t employee-management-app-backend:ci ./backend
+
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@v0.2.3
+
+      - name: Run Trivy Security Scan
+        run: trivy image --severity HIGH,CRITICAL --exit-code 1 employee-management-app-backend:ci

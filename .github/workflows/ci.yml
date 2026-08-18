@@ -1,47 +1,26 @@
+cat > .github/workflows/ci.yml <<'EOF'
 name: Backend CI
 
 on:
   push:
     branches:
       - main
-      - develop
-      - feature/*
+
   pull_request:
     branches:
       - main
-      - develop
 
 jobs:
   backend-test:
-    runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: employee_db
-          POSTGRES_USER: employee_user
-          POSTGRES_PASSWORD: employee_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U employee_user -d employee_db"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+    runs-on: ubuntu-latest
 
     defaults:
       run:
         working-directory: backend
 
-    env:
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_USER: employee_user
-      DB_PASSWORD: employee_password
-      DB_NAME: employee_db
-
     steps:
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -53,19 +32,10 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Install PostgreSQL Client
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
-
-      - name: Initialize Database
-        run: |
-          PGPASSWORD=$DB_PASSWORD psql \
-          -h $DB_HOST \
-          -U $DB_USER \
-          -d $DB_NAME \
-          -f db/init.sql
-
       - name: Run Tests
         run: npm test
 
       - name: Build Docker Image
-        run: docker build -t employee-app .
+        working-directory: .
+        run: docker build -t employee-management-app-backend:ci ./backend
+EOF

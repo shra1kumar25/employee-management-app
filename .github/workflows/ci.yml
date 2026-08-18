@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
-
+      - develop
+      - feature/*
   pull_request:
     branches:
       - main
+      - develop
 
 jobs:
   backend-test:
@@ -29,7 +31,10 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Tests
         run: npm test
+
+      - name: Build Docker Image
+        run: docker build -t employee-app .

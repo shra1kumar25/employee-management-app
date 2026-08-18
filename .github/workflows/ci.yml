@@ -1,7 +1,6 @@
-cat > .github/workflows/ci.yml <<'EOF'
 name: Backend CI
 
-on:
+'on':
   push:
     branches:
       - main
@@ -12,15 +11,9 @@ on:
 
 jobs:
   backend-test:
-
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: backend
-
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -30,12 +23,12 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
+        working-directory: backend
         run: npm ci
 
       - name: Run Tests
+        working-directory: backend
         run: npm test
 
       - name: Build Docker Image
-        working-directory: .
         run: docker build -t employee-management-app-backend:ci ./backend
-EOF

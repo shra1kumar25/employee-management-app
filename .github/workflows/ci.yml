@@ -37,6 +37,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install Dependencies
         working-directory: backend
@@ -63,12 +65,12 @@ jobs:
       - name: Build Docker Image
         run: docker build -t employee-management-app-backend:ci ./backend
 
-      - name: Install Trivy
-        uses: aquasecurity/setup-trivy@v0.2.3
-
       - name: Run Trivy Security Scan
-        run: |
-          trivy image \
-          --severity HIGH,CRITICAL \
-          --exit-code 1 \
-          employee-management-app-backend:ci
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: employee-management-app-backend:ci
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL

@@ -230,6 +230,6 @@ jobs:
 
       - name: Push Frontend Image
         run: |
-          docker push ${{ sra1kumar25 }}/employee-management-frontend:latest
-          docker push ${{ sra1kumar25 }}/employee-management-frontend:${{ github.sha }}
+          docker push ${{ 'sra1kumar25' }}/employee-management-frontend:latest
+          docker push ${{ 'sra1kumar25' }}/employee-management-frontend:${{ github.sha }}
 

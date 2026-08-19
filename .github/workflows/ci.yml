@@ -10,6 +10,8 @@ workflow_dispatch:
     branches:
       - main
 
+  workflow_dispatch:
+
 jobs:
 
   # ==========================================================
@@ -22,15 +24,12 @@ jobs:
     services:
       postgres:
         image: postgres:16-alpine
-
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: employee_db
-
         ports:
           - 5432:5432
-
         options: >-
           --health-cmd="pg_isready -U postgres -d employee_db"
           --health-interval=10s
@@ -38,7 +37,6 @@ jobs:
           --health-retries=5
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -53,21 +51,6 @@ jobs:
         working-directory: backend
         run: npm ci
 
-       HEAD
-     - name: Check PostgreSQL Client
-      run: |
-      psql --version
-
-      - name: Initialize Test Database
-        env:
-          PGPASSWORD: postgres
-        run: |
-          psql \
-            -h localhost \
-            -U postgres \
-            -d employee_db \
-            -f backend/db/init.sql
-        7ddb19d (feat: complete CI containerization and security checks)
       - name: Run Backend Tests
         working-directory: backend
         env:
@@ -80,14 +63,13 @@ jobs:
 
 
   # ==========================================================
-  # FRONTEND BUILD
+  # FRONTEND BUILD AND TEST
   # ==========================================================
   frontend-build:
-    name: Frontend Build
+    name: Frontend Build and Test
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -112,14 +94,13 @@ jobs:
 
 
   # ==========================================================
-  # GITLEAKS SECRET SCAN
+  # GITLEAKS
   # ==========================================================
   gitleaks:
     name: Secret Scan
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -142,15 +123,11 @@ jobs:
       - backend-test
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Build Backend Docker Image
-        run: |
-          docker build \
-            -t employee-management-app-backend:ci \
-            ./backend
+        run: docker build -t employee-management-app-backend:ci ./backend
 
 
   # ==========================================================
@@ -164,19 +141,15 @@ jobs:
       - frontend-build
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Build Frontend Docker Image
-        run: |
-          docker build \
-            -t employee-management-app-frontend:ci \
-            ./frontend
+        run: docker build -t employee-management-app-frontend:ci ./frontend
 
 
   # ==========================================================
-  # BACKEND TRIVY SCAN
+  # BACKEND TRIVY
   # ==========================================================
   trivy-backend:
     name: Backend Container Security
@@ -186,15 +159,11 @@ jobs:
       - backend-docker
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Build Backend Image
-        run: |
-          docker build \
-            -t employee-management-app-backend:ci \
-            ./backend
+        run: docker build -t employee-management-app-backend:ci ./backend
 
       - name: Run Trivy Backend Scan
         uses: aquasecurity/trivy-action@v0.36.0
@@ -205,7 +174,7 @@ jobs:
 
 
   # ==========================================================
-  # FRONTEND TRIVY SCAN
+  # FRONTEND TRIVY
   # ==========================================================
   trivy-frontend:
     name: Frontend Container Security
@@ -215,23 +184,15 @@ jobs:
       - frontend-docker
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Build Frontend Image
-        run: |
-          docker build \
-            -t employee-management-app-frontend:ci \
-            ./frontend
+        run: docker build -t employee-management-app-frontend:ci ./frontend
 
       - name: Run Trivy Frontend Scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: employee-management-app-frontend:ci
           severity: HIGH,CRITICAL
-        HEAD
-          exit-code: '1'
-
           exit-code: "1"
-         7ddb19d (feat: complete CI containerization and security checks)

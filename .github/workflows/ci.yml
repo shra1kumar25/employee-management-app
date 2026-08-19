@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - feature/docker-compose
-
+workflow_dispatch:
   pull_request:
     branches:
       - main

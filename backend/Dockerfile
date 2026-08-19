@@ -1,25 +1,34 @@
+# Build stage
+FROM node:22-alpine AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm ci --omit=dev
+
+COPY server.js .
+COPY db.js .
+
+
+# Runtime stage
 FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+# Copy only production application files
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/server.js .
+COPY --from=build /app/db.js .
 
-RUN npm install
+# Remove npm from the runtime image.
+# The application runs directly with node.
+RUN rm -rf /usr/local/lib/node_modules/npm \
+    /usr/local/bin/npm \
+    /usr/local/bin/npx
 
-COPY . .
-
-EXPOSE 3000
-
-CMD ["node", "server.js"]FROM node:22-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-COPY . .
-
-EXPOSE 3000
+EXPOSE 5000
 
 CMD ["node", "server.js"]

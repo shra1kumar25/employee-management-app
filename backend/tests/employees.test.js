@@ -8,6 +8,7 @@ describe("Employee API", () => {
 
         expect(response.statusCode).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
+        expect(response.body.length).toBeGreaterThanOrEqual(2);
     });
 
     test("GET /employees/1 should return employee", async () => {
@@ -15,6 +16,7 @@ describe("Employee API", () => {
 
         expect(response.statusCode).toBe(200);
         expect(response.body.id).toBe(1);
+        expect(response.body.name).toBe("John");
     });
 
     test("POST /employees should create employee", async () => {
@@ -28,6 +30,7 @@ describe("Employee API", () => {
 
         expect(response.statusCode).toBe(201);
         expect(response.body.name).toBe("David");
+        expect(response.body.email).toBe("david@example.com");
     });
 
     test("PUT /employees/1 should update employee", async () => {

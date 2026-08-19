@@ -202,8 +202,8 @@ jobs:
 
       - name: Push Backend Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/employee-management-backend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/employee-management-backend:${{ github.sha }}
+          docker push ${{ sra1kumar25 }}/employee-management-backend:latest
+          docker push ${{ sra1kumar25 }}/employee-management-backend:${{ github.sha }}
   push-frontend:
     name: Push Frontend Image
     runs-on: ubuntu-latest
@@ -224,8 +224,8 @@ jobs:
       - name: Build Frontend Image
         run: |
           docker build \
-            -t ${{ secrets.DOCKER_USERNAME }}/employee-management-frontend:latest \
-            -t ${{ secrets.DOCKER_USERNAME }}/employee-management-frontend:${{ github.sha }} \
+            -t ${{ secrets.sra1kumar25 }}/employee-management-frontend:latest \
+            -t ${{ secrets. }}/employee-management-frontend:${{ github.sha }} \
             ./frontend
 
       - name: Push Frontend Image
